@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mes Petites Affaires - Le Meilleur Site d'Affiliation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Bouton Dark/Light Mode -->
+  <button id="themeToggle" aria-label="Toggle Dark Mode">🌙</button>
+
+  <!-- Header & Navigation -->
+  <header>
+    <div class="logo">
+      <h2>Mes Petites Affaires</h2>
+    </div>
+    <nav>
+      <a href="#accueil">Accueil</a>
+      <a href="#enseignes">Enseignes</a>
+      <a href="#premium">Top Produits</a>
+      <a href="#temoignages">Avis</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <!-- Section Hero -->
+  <section class="hero" id="accueil">
+    <h1>Les Meilleures Offres, Sélectionnées Pour Vous</h1>
+  </section>
+
+  <!-- Barre de recherche -->
+  <section class="container search-container">
+    <input type="search" id="searchInput" placeholder="Rechercher un produit ou une enseigne...">
+  </section>
+
+  <!-- Section Sélections par Enseigne -->
+  <section class="container" id="enseignes">
+    <h2 class="section-title">Sélections Par Enseigne</h2>
+    <div class="grid" id="enseigne-cards">
+      <!-- Les cartes seront générées via JavaScript -->
+    </div>
+  </section>
+
+  <!-- Section Produits Premium -->
+  <section class="container" id="premium">
+    <h2 class="section-title">Produits Premium et Rentables</h2>
+    <div class="grid" id="premium-cards">
+      <!-- Les cartes seront générées via JavaScript -->
+    </div>
+  </section>
+
+  <!-- Section Témoignages -->
+  <section class="container" id="temoignages">
+    <h2 class="section-title">Avis et Témoignages</h2>
+    <p class="testimonial">
+      "Ce site est une mine d'or pour les affiliés. Les offres sont pertinentes et la sélection est vraiment pointue." – Un affilié satisfait
+    </p>
+  </section>
+
+  <!-- Section Contact -->
+  <section class="container" id="contact">
+    <h2 class="section-title">Contact</h2>
+    <p style="text-align: center;">
+      Pour toute question, contactez-nous à <a href="mailto:contact@mespetitesaffaires.fr">contact@mespetitesaffaires.fr</a>
+    </p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Mes Petites Affaires. Tous droits réservés.</p>
+  </footer>
+
+  <!-- Modal pour Détails Produit -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span id="modalClose" class="modal-close">&times;</span>
+      <div id="modalBody">
+        <!-- Le contenu détaillé sera généré via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Inclusion du JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
