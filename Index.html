@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ma Boutique Affiliée CJ</title>
+  <meta name="description" content="Affichage dynamique, comparatif et favoris de produits affiliés via CJ Affiliate">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Style principal -->
+  <link rel="stylesheet" href="assets/styles.css">
+
+  <!-- Script principal -->
+  <script src="assets/script.js" defer></script>
+</head>
+<body>
+
+  <!-- Bannière cookies -->
+  <div id="cookie-banner" class="hidden">
+    <span>Nous utilisons des cookies pour améliorer votre expérience. <a href="#contact">En savoir plus</a></span>
+    <button id="accept-cookies">J'accepte</button>
+  </div>
+
+  <!-- Header / Nav -->
+  <header>
+    <div class="nav-container">
+      <div class="logo">CJ Affiliation</div>
+      <nav>
+        <ul>
+          <li><a href="#">Accueil</a></li>
+          <li><a href="#about">À propos</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><button id="theme-toggle">🌙</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Conteneur principal -->
+  <main>
+    <!-- Sidebar filtres + contrôles -->
+    <aside id="sidebar">
+      <h2>Filtres</h2>
+      <div class="filter-group">
+        <label for="search-input">Mot-clé</label>
+        <input type="text" id="search-input" placeholder="ex. montre">
+      </div>
+      <div class="filter-group">
+        <label for="cat-select">Catégorie</label>
+        <select id="cat-select"><option value="">Toutes</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="min-price">Prix min (€)</label>
+        <input type="number" id="min-price" min="0" placeholder="0">
+      </div>
+      <div class="filter-group">
+        <label for="max-price">Prix max (€)</label>
+        <input type="number" id="max-price" min="0" placeholder="1000">
+      </div>
+      <div class="filter-group">
+        <label for="sort-by">Trier par</label>
+        <select id="sort-by">
+          <option value="relevance">Pertinence</option>
+          <option value="price-asc">Prix ↑</option>
+          <option value="price-desc">Prix ↓</option>
+          <option value="name-asc">Nom A→Z</option>
+          <option value="name-desc">Nom Z→A</option>
+        </select>
+      </div>
+      <button id="apply-filters">Rechercher</button>
+      <button id="clear-filters" class="secondary">Réinitialiser</button>
+      <hr>
+      <button id="toggle-favorites" class="secondary">Voir mes favoris</button>
+      <button id="toggle-compare" class="secondary">Voir comparateur</button>
+    </aside>
+
+    <!-- Section produits -->
+    <section id="product-section">
+      <div id="loader">⏳ Chargement…</div>
+      <div id="message"></div>
+      <div id="results"></div>
+      <div id="pagination">
+        <button id="prev-page" disabled>← Précédent</button>
+        <span id="page-info">Page 1</span>
+        <button id="next-page" disabled>Suivant →</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Comparateur (collapsable) -->
+  <section id="compare-container" class="panel hidden">
+    <header>
+      <h2>Comparateur</h2>
+      <button id="close-compare">✕</button>
+    </header>
+    <table id="compare-table">
+      <thead>
+        <tr><th>Produit</th><th>Prix</th><th>Catégorie</th><th>Lien</th><th>Action</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Favoris (collapsable) -->
+  <section id="favorites-container" class="panel hidden">
+    <header>
+      <h2>Mes favoris</h2>
+      <button id="close-favorites">✕</button>
+    </header>
+    <ul id="favorites-list"></ul>
+  </section>
+
+  <!-- À propos & Contact -->
+  <section id="about">
+    <h2>À propos</h2>
+    <p>Ce site affiche dynamiquement des produits affiliés via l’API CJ Affiliate.</p>
+  </section>
+
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>Pour toute question, écris à <a href="mailto:contact@ton-site.com">contact@ton-site.com</a>.</p>
+  </section>
+
+  <footer>
+    <p>© 2025 Ma Boutique Affiliée • Mentions légales • Politique de confidentialité</p>
+  </footer>
+</body>
+</html>
