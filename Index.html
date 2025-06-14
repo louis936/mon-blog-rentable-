@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comparateur Affilié</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- HEADER + RECHERCHE -->
+  <header class="header">
+    <h1>Comparateur Affilié</h1>
+    <input type="search" id="search" placeholder="Rechercher un produit…">
+  </header>
+
+  <!-- SIDEBAR FILTRES -->
+  <aside class="sidebar">
+    <h2>Filtres</h2>
+    <div class="filter-group">
+      <label>Catégorie</label>
+      <ul>
+        <li><button data-cat="all" class="active">Toutes</button></li>
+        <li><button data-cat="tech">Technologie</button></li>
+        <li><button data-cat="mode">Mode</button></li>
+        <li><button data-cat="maison">Maison</button></li>
+      </ul>
+    </div>
+    <div class="filter-group">
+      <label>Prix (€)</label>
+      <input type="number" id="minPrice" placeholder="Min">
+      <input type="number" id="maxPrice" placeholder="Max">
+      <button id="applyPrice">OK</button>
+    </div>
+  </aside>
+
+  <!-- BANNIÈRE PROMO -->
+  <section class="promo-banner">
+    🌟 Promo d’été : -20% sur certains articles ! Utilise le code ETE20
+  </section>
+
+  <!-- LISTE DES PRODUITS -->
+  <main class="main-content">
+    <section class="products" id="products"></section>
+  </main>
+
+  <!-- AVIS CLIENTS -->
+  <section class="reviews">
+    <h2>Avis clients</h2>
+    <div class="review-list" id="reviewList"></div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    &copy; 2025 – Comparateur Affilié
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
