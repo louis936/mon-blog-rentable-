@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mes Favoris</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>⭐ Mes Produits Favoris</h1>
+    <a href="index.html" style="color:white;">← Retour à l’accueil</a>
+  </header>
+
+  <div id="menu-utilisateur" style="text-align:center; margin-top:1rem;"></div>
+
+  <section id="section-favoris">
+    <p>Chargement de vos favoris...</p>
+  </section>
+
+  <footer>
+    <p>💖 Liste des favoris utilisateur – Comparateur Premium</p>
+  </footer>
+
+  <script>
+    const API_URL = "http://localhost:8000";
+    const utilisateurId = localStorage.getItem("utilisateur_id");
+    const utilisateurNom = localStorage.getItem("utilisateur_nom");
+
+    if (!utilisateurId) {
+      alert("Veuillez vous connecter pour accéder à vos favoris.");
+      window.location.href = "login.html";
+    }
+
+    // Menu utilisateur
+    const menu = document.getElementById("menu-utilisateur");
+    if (utilisateurNom) {
+      menu.innerHTML = `
+        <p>👋 Connecté en tant que <strong>${utilisateurNom}</strong></p>
+        <button onclick="deconnexion()" style="margin-top:0.5rem;padding:0.4rem 0.8rem;background:#e74c3c;color:white;border:none;border-radius:4px;">Se déconnecter</button>
+      `;
+    }
+
+    function deconnexion() {
+      localStorage.removeItem("utilisateur_id");
+      localStorage.removeItem("utilisateur_nom");
+      window.location.href = "index.html";
+    }
+
+    async function chargerFavoris() {
+      try {
+        const res = await fetch(`${API_URL}/favoris/${utilisateurId}`);
+        const data = await res.json();
+        const section = document.getElementById("section-favoris");
+        section.innerHTML = "";
+
+        if (data.produits.length === 0) {
+          section.innerHTML = "<p>🤷 Aucun favori pour le moment.</p>";
+          return;
+        }
+
+        data.produits.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "produit";
+          card.innerHTML = `
+            <img src="${item.produit.image}" alt="${item.produit.nom}" />
+            <h3>${item.produit.nom}</h3>
+            <p>${item.produit.description}</p>
+            <p><strong>${item.produit.prix} €</strong></p>
+            <a href="produit.html?id=${item.produit_id}">Voir produit</a>
+          `;
+          section.appendChild(card);
+        });
+      } catch (e) {
+        document.getElementById("section-favoris").innerHTML = "❌ Erreur de chargement.";
+        console.error(e);
+      }
+    }
+
+    window.onload = chargerFavoris;
+  </script>
+</body>
+</html>

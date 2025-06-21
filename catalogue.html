@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catalogue – Comparateur Premium</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; background: #f4f4f4; }
+    header { text-align: center; margin-bottom: 2rem; }
+    input, select { padding: 0.5rem; margin: 0.5rem; }
+    .produits { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+    .produit { background: white; padding: 1rem; border-radius: 6px; width: 280px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .produit img { max-width: 100%; height: auto; border-radius: 4px; }
+    .produit h3 { margin-top: 0.5rem; }
+    .produit button { margin-top: 0.5rem; background: #007bff; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+    .produit button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🛍️ Bienvenue sur le catalogue</h1>
+  <input type="text" id="recherche" placeholder="🔎 Rechercher un produit..." oninput="filtrer()" />
+  <select id="filtre-categorie" onchange="filtrer()">
+    <option value="">— Toutes les catégories —</option>
+  </select>
+</header>
+
+<section class="produits" id="liste-produits">
+  <p>Chargement des produits...</p>
+</section>
+
+<script>
+  // Le JavaScript arrive dans le bloc suivant 😏
+</script>
+
+</body>
+</html><script>
+const API_URL = "http://localhost:8000";
+let tousLesProduits = [];
+let rechercheTexte = "";
+let filtreCategorie = "";
+
+window.onload = async () => {
+  try {
+    const res = await fetch(`${API_URL}/admin/produits`);
+    const data = await res.json();
+    tousLesProduits = data.produits || [];
+
+    // Remplir les catégories
+    const select = document.getElementById("filtre-categorie");
+    const categories = [...new Set(tousLesProduits.map(p => p.categorie))];
+    categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      select.appendChild(opt);
+    });
+
+    afficherProduits();
+  } catch (e) {
+    document.getElementById("liste-produits").innerHTML = "<p>❌ Erreur de chargement.</p>";
+    console.error("Erreur chargement catalogue", e);
+  }
+};
+
+function filtrer() {
+  rechercheTexte = document.getElementById("recherche").value.toLowerCase();
+  filtreCategorie = document.getElementById("filtre-categorie").value;
+  afficherProduits();
+}
+
+function afficherProduits() {
+  const section = document.getElementById("liste-produits");
+  section.innerHTML = "";
+
+  let resultats = tousLesProduits
+    .filter(p => !filtreCategorie || p.categorie === filtreCategorie)
+    .filter(p => p.nom.toLowerCase().includes(rechercheTexte));
+
+  if (resultats.length === 0) {
+    section.innerHTML = "<p>Aucun produit trouvé.</p>";
+    return;
+  }
+
+  resultats.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "produit";
+    card.innerHTML = `
+      <img src="${p.image}" alt="${p.nom}" />
+      <h3>${p.nom}</h3>
+      <p><strong>Prix :</strong> ${p.prix} €</p>
+      <p><strong>Annonceur :</strong> ${p.annonceur}</p>
+      <p><strong>Catégorie :</strong> ${p.categorie}</p>
+      <button onclick="window.open('${p.url}', '_blank')">Voir 🔗</button>
+    `;
+    section.appendChild(card);
+  });
+}
+</script>

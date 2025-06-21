@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fiche Produit</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🛍️ Détail du Produit</h1>
+    <a href="index.html" style="color:white;">← Retour à l’accueil</a>
+  </header>
+
+  <div id="menu-utilisateur" style="text-align: center; margin-top: 1rem;"></div>
+
+  <section id="fiche-produit">
+    <p>Chargement en cours...</p>
+  </section>
+
+  <footer>
+    <p>📦 Comparateur Premium – produit détaillé</p>
+  </footer>
+
+  <script>
+    const API_URL = "http://localhost:8000";
+    const utilisateurId = localStorage.getItem("utilisateur_id");
+    const utilisateurNom = localStorage.getItem("utilisateur_nom");
+
+    // Menu utilisateur
+    const menu = document.getElementById("menu-utilisateur");
+    if (utilisateurNom) {
+      menu.innerHTML = `
+        <p>👋 Connecté en tant que <strong>${utilisateurNom}</strong></p>
+        <button onclick="deconnexion()" style="margin-top: 0.5rem; padding: 0.4rem 0.8rem; background:#e74c3c; color:white; border:none; border-radius:4px;">Se déconnecter</button>
+      `;
+    }
+
+    function deconnexion() {
+      localStorage.removeItem("utilisateur_id");
+      localStorage.removeItem("utilisateur_nom");
+      window.location.href = "index.html";
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const produitId = params.get("id");
+
+    async function chargerProduit() {
+      try {
+        const res = await fetch(`${API_URL}/produit/${produitId}`);
+        const json = await res.json();
+        const produit = json.produit;
+
+        const stats = await fetch(`${API_URL}/stats/${produitId}`).then(r => r.json());
+
+        document.getElementById("fiche-produit").innerHTML = `
+          <div class="produit">
+            <img src="${produit.image}" alt="${produit.nom}" />
+            <h2>${produit.nom}</h2>
+            <p>${produit.description}</p>
+            <p><strong>${produit.prix} €</strong></p>
+            <p>Catégorie : ${produit.categorie}</p>
+            <p>Annonceur : ${produit.annonceur}</p>
+            <p>Vues : ${stats.stats.vues} | Clics : ${stats.stats.clics} | EPC : ${stats.stats.epc}</p>
+            <a href="${produit.url}" target="_blank" onclick="enregistrerClic()">🔗 Voir sur le site partenaire</a>
+          </div>
+        `;
+
+        fetch(`${API_URL}/vue`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            produit_id: parseInt(produitId),
+            user_agent: navigator.userAgent,
+            referer: document.referrer,
+          }),
+        });
+      } catch (e) {
+        document.getElementById("fiche-produit").innerHTML = "❌ Produit introuvable.";
+        console.error(e);
+      }
+    }
+
+    function enregistrerClic() {
+      fetch(`${API_URL}/clic`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          produit_id: parseInt(produitId),
+        }),
+      });
+    }
+
+    window.onload = chargerProduit;
+  </script>
+</body>
+</html>
