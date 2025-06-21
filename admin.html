@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Gestion Produits</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🎛️ Panneau d'administration</h1>
+    <p>Ajoutez, modifiez ou supprimez les produits de votre catalogue</p>
+  </header>
+
+  <section id="formulaire-ajout">
+    <h2>➕ Ajouter un produit</h2>
+    <form id="ajout-produit-form">
+      <input type="text" id="nom" placeholder="Nom du produit" required />
+      <input type="number" id="prix" placeholder="Prix (€)" required step="0.01" />
+      <input type="text" id="categorie" placeholder="Catégorie" required />
+      <input type="text" id="annonceur" placeholder="Annonceur" required />
+      <input type="url" id="image" placeholder="URL de l'image (optionnel)" />
+      <input type="url" id="url" placeholder="Lien vers le produit (optionnel)" />
+      <button type="submit">💾 Ajouter</button>
+    </form>
+    <p id="message-ajout" class="message"></p>
+  </section>
+
+  <hr /><section id="liste-produits">
+    <h2>📦 Produits existants</h2>
+    <div id="produits-container">
+      <!-- Les produits seront affichés ici dynamiquement -->
+    </div>
+    <p id="message-actions" class="message"></p>
+  </section>
+
+  <template id="produit-template">
+    <div class="produit-item">
+      <img src="" alt="Image produit" class="produit-image" />
+      <div class="produit-infos">
+        <h3 class="produit-nom"></h3>
+        <p><strong>Prix :</strong> <span class="produit-prix"></span> €</p>
+        <p><strong>Catégorie :</strong> <span class="produit-categorie"></span></p>
+        <p><strong>Annonceur :</strong> <span class="produit-annonceur"></span></p>
+        <p><a class="produit-url" href="#" target="_blank">🔗 Voir le produit</a></p>
+      </div>
+      <div class="produit-actions">
+        <button class="modifier-btn">✏️ Modifier</button>
+        <button class="supprimer-btn">🗑️ Supprimer</button>
+      </div>
+    </div>
+  </template><section id="modale-modification" class="hidden">
+    <h2>✏️ Modifier le produit</h2>
+    <form id="modification-form">
+      <input type="text" id="modif-nom" placeholder="Nom du produit" required />
+      <input type="number" id="modif-prix" placeholder="Prix (€)" required step="0.01" />
+      <input type="text" id="modif-categorie" placeholder="Catégorie" required />
+      <input type="text" id="modif-annonceur" placeholder="Annonceur" required />
+      <input type="url" id="modif-image" placeholder="URL de l'image (optionnel)" />
+      <input type="url" id="modif-url" placeholder="Lien produit (optionnel)" />
+      <input type="hidden" id="modif-id" />
+      <button type="submit">💾 Sauvegarder</button>
+      <button type="button" id="annuler-modif">❌ Annuler</button>
+    </form>
+    <p id="message-modif" class="message"></p>
+  </section>
+
+  <footer>
+    <p>© 2025 – Interface admin générée pour Louis 🚀</p>
+  </footer>
+</body>
+</html><script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const API_BASE = "http://localhost:8000";
+
+    const formAjout = document.getElementById("ajout-produit-form");
+    const messageAjout = document.getElementById("message-ajout");
+    const produitsContainer = document.getElementById("produits-container");
+    const template = document.getElementById("produit-template");
+    const messageActions = document.getElementById("message-actions");
+
+    // Charger tous les produits existants
+    fetch(`${API_BASE}/admin/produits`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.produits) {
+          data.produits.forEach(afficherProduit);
+        }
+      });
+
+    // Fonction pour afficher un produit
+    function afficherProduit(produit) {
+      const clone = template.content.cloneNode(true);
+      clone.querySelector(".produit-nom").textContent = produit.nom;
+      clone.querySelector(".produit-prix").textContent = produit.prix.toFixed(2);
+      clone.querySelector(".produit-categorie").textContent = produit.categorie;
+      clone.querySelector(".produit-annonceur").textContent = produit.annonceur;
+      clone.querySelector(".produit-url").href = produit.url || "#";
+      clone.querySelector(".produit-url").textContent = produit.url ? "🔗 Voir le produit" : "—";
+      const image = clone.querySelector(".produit-image");
+      image.src = produit.image || "https://via.placeholder.com/300x200?text=Sans+image";image.alt = produit.nom;
+
+      const elementProduit = clone.querySelector(".produit-item");
+
+      // Action : supprimer un produit
+      clone.querySelector(".supprimer-btn").addEventListener("click", () => {
+        fetch(`${API_BASE}/admin/produit/${produit.id}`, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            messageActions.textContent = data.message;
+            elementProduit.remove();
+          })
+          .catch((err) => {
+            messageActions.textContent = "Erreur lors de la suppression.";
+            console.error(err);
+          });
+      });
+
+      // Action : modifier un produit
+      clone.querySelector(".modifier-btn").addEventListener("click", () => {
+        document.getElementById("modale-modification").classList.remove("hidden");
+        document.getElementById("modif-id").value = produit.id;
+        document.getElementById("modif-nom").value = produit.nom;
+        document.getElementById("modif-prix").value = produit.prix;
+        document.getElementById("modif-categorie").value = produit.categorie;
+        document.getElementById("modif-annonceur").value = produit.annonceur;
+        document.getElementById("modif-image").value = produit.image || "";
+        document.getElementById("modif-url").value = produit.url || "";
+      });
+
+      produitsContainer.appendChild(clone);
+    }// Soumission du formulaire d’ajout de produit
+    formAjout.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nouveauProduit = {
+        nom: document.getElementById("nom").value,
+        prix: parseFloat(document.getElementById("prix").value),
+        categorie: document.getElementById("categorie").value,
+        annonceur: document.getElementById("annonceur").value,
+        image: document.getElementById("image").value || null,
+        url: document.getElementById("url").value || null
+      };
+
+      fetch(`${API_BASE}/admin/produit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nouveauProduit)
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          messageAjout.textContent = data.message;
+          afficherProduit(data.produit);
+          formAjout.reset();
+        })
+        .catch((err) => {
+          messageAjout.textContent = "Erreur lors de l'ajout du produit.";
+          console.error(err);
+        });
+    });// Soumission du formulaire de modification
+    const modifForm = document.getElementById("modification-form");
+    const messageModif = document.getElementById("message-modif");
+
+    modifForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const id = document.getElementById("modif-id").value;
+      const produitModifie = {
+        id: id,
+        nom: document.getElementById("modif-nom").value,
+        prix: parseFloat(document.getElementById("modif-prix").value),
+        categorie: document.getElementById("modif-categorie").value,
+        annonceur: document.getElementById("modif-annonceur").value,
+        image: document.getElementById("modif-image").value || null,
+        url: document.getElementById("modif-url").value || null
+      };
+
+      fetch(`${API_BASE}/admin/produit/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(produitModifie)
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          messageModif.textContent = data.message;
+          modifForm.reset();
+          location.reload(); // Recharger pour refléter les modifs
+        })
+        .catch((err) => {
+          messageModif.textContent = "Erreur lors de la modification.";
+          console.error(err);
+        });
+    });// Annuler la modification
+    document.getElementById("annuler-modif").addEventListener("click", () => {
+      document.getElementById("modale-modification").classList.add("hidden");
+      modifForm.reset();
+    });
+</script>

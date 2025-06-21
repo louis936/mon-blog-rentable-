@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catalogue Produits</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="catalogue.js"></script>
+</head>
+<body>
+  <header>
+    <h1>🛍️ Catalogue des produits</h1>
+    <p>Découvrez tous les articles disponibles, classés par annonceur, catégorie, prix...</p>
+  </header>
+
+  <section id="filtres">
+    <h2>🔍 Filtres</h2>
+    <form id="filtre-form">
+      <input type="text" id="recherche-nom" placeholder="Rechercher par nom..." />
+      <select id="categorie-select">
+        <option value="">Toutes les catégories</option>
+      </select>
+      <select id="annonceur-select">
+        <option value="">Tous les annonceurs</option>
+      </select>
+      <input type="number" id="min-prix" placeholder="Prix min (€)" step="0.01" />
+      <input type="number" id="max-prix" placeholder="Prix max (€)" step="0.01" />
+      <button type="submit">🔎 Rechercher</button>
+    </form>
+  </section>
+
+  <hr /><section id="catalogue-produits">
+    <h2>🧾 Liste des produits</h2>
+    <div id="produits-list">
+      <!-- Les produits seront insérés ici dynamiquement -->
+    </div>
+    <p id="catalogue-message" class="message"></p>
+  </section>
+
+  <template id="produit-catalogue-template">
+    <div class="catalogue-item">
+      <img src="" alt="Image produit" class="catalogue-image" />
+      <div class="catalogue-infos">
+        <h3 class="catalogue-nom"></h3>
+        <p><strong>Prix :</strong> <span class="catalogue-prix"></span> €</p>
+        <p><strong>Catégorie :</strong> <span class="catalogue-categorie"></span></p>
+        <p><strong>Annonceur :</strong> <span class="catalogue-annonceur"></span></p>
+        <p><a class="catalogue-url" href="#" target="_blank">🔗 Voir le produit</a></p>
+      </div>
+    </div>
+  </template><script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const API_BASE = "http://localhost:8000";
+
+    const formFiltre = document.getElementById("filtre-form");
+    const produitsList = document.getElementById("produits-list");
+    const template = document.getElementById("produit-catalogue-template");
+    const catalogueMessage = document.getElementById("catalogue-message");
+
+    const categorieSelect = document.getElementById("categorie-select");
+    const annonceurSelect = document.getElementById("annonceur-select");
+
+    // Charger catégories et annonceurs
+    fetch(`${API_BASE}/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        data.categories.forEach((cat) => {
+          const option = document.createElement("option");
+          option.value = cat;
+          option.textContent = cat;
+          categorieSelect.appendChild(option);
+        });
+      });
+
+    fetch(`${API_BASE}/annonceurs`)
+      .then((res) => res.json())
+      .then((data) => {
+        data.annonceurs.forEach((a) => {
+          const option = document.createElement("option");
+          option.value = a;
+          option.textContent = a;
+          annonceurSelect.appendChild(option);
+        });
+      });// Fonction pour afficher un seul produit dans le DOM
+    function afficherProduit(produit) {
+      const clone = template.content.cloneNode(true);
+      clone.querySelector(".catalogue-nom").textContent = produit.nom;
+      clone.querySelector(".catalogue-prix").textContent = produit.prix.toFixed(2);
+      clone.querySelector(".catalogue-categorie").textContent = produit.categorie;
+      clone.querySelector(".catalogue-annonceur").textContent = produit.annonceur;
+      const url = clone.querySelector(".catalogue-url");
+      if (produit.url) {
+        url.href = produit.url;
+        url.textContent = "🔗 Voir le produit";
+      } else {
+        url.href = "#";
+        url.textContent = "—";
+      }
+      const img = clone.querySelector(".catalogue-image");
+      img.src = produit.image || "https://via.placeholder.com/300x200?text=Sans+image";
+      img.alt = produit.nom;
+      produitsList.appendChild(clone);
+    }
+
+    // Affichage initial : tous les produits
+    fetch(`${API_BASE}/catalogue/tri/nom`)
+      .then((res) => res.json())
+      .then((data) => {
+        produitsList.innerHTML = "";
+        data.produits.forEach(afficherProduit);
+      });// Gestion du formulaire de recherche / filtres
+    formFiltre.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const motCle = document.getElementById("recherche-nom").value.trim();
+      const categorie = categorieSelect.value;
+      const annonceur = annonceurSelect.value;
+      const minPrix = parseFloat(document.getElementById("min-prix").value) || 0;
+      const maxPrix = parseFloat(document.getElementById("max-prix").value) || 999999;
+
+      let url = `${API_BASE}/catalogue/recherche/avancee?mot_cle=${encodeURIComponent(motCle)}`;
+      if (annonceur) {
+        url += `&annonceur=${encodeURIComponent(annonceur)}`;
+      }
+
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          const filtrés = data.resultats.filter(
+            (p) => p.prix >= minPrix && p.prix <= maxPrix &&
+                    (categorie ? p.categorie === categorie : true)
+          );
+
+          produitsList.innerHTML = "";
+          if (filtrés.length > 0) {
+            filtrés.forEach(afficherProduit);
+            catalogueMessage.textContent = `${filtrés.length} produit(s) trouvé(s)`;
+          } else {
+            catalogueMessage.textContent = "Aucun produit ne correspond à ces critères.";
+          }
+        })
+        .catch((err) => {
+          catalogueMessage.textContent = "Erreur lors du filtrage.";
+          console.error(err);
+        });
+    });});
+</script>
